@@ -1,0 +1,29 @@
+{
+  "name": "testserver",
+  "version": "1.0.0",
+  "description": "server to serve static files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grenudi/testserver.git"
+  },
+  "keywords": [
+    "server",
+    "simple",
+    "test",
+    "serve",
+    "static"
+  ],
+  "author": "grenudi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/grenudi/testserver/issues"
+  },
+  "homepage": "https://github.com/grenudi/testserver#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
