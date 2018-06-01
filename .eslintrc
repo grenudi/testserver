@@ -1,18 +1,18 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es6": true
+    "env":                 {
+        "browser":         true,
+        "commonjs":        true,
+        "es6":             true
     },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
+    "extends":             "eslint:recommended",
+    "parserOptions":       {
+        "ecmaFeatures":    {
+            "jsx":         true
         },
-        "sourceType": "module"
+        "sourceType":      "module"
     },
-    "rules": {
-        "indent": [
+    "rules":               {
+        "indent":          [
             "error",
             "tab"
         ],
@@ -20,13 +20,14 @@
             "error",
             "unix"
         ],
-        "quotes": [
+        "quotes":          [
             "error",
             "double"
         ],
-        "semi": [
+        "semi":            [
             "error",
             "always"
-        ]
+        ],
+        "no-console":      0
     }
 }

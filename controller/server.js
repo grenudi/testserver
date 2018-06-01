@@ -4,4 +4,14 @@ const app = Express();
 const router = require("./router.js");
 const config = require("./config.js");
 
-router(app).then(()=>{app.listen(config.port)});
+const start = function(){
+  return new Promise((ok,notok)=>{
+    router(app)
+      .then((newapp)=>newapp.listen(config.port))
+      .then(ok(config.port));
+  })
+}
+
+module.exports = {
+  start
+}
