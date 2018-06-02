@@ -16,6 +16,7 @@ const lohbox = function(app){
     app.get("/",(req,res)=>{
       res.sendFile(Path.join(__dirname, "../browser/static/lohbox/index.html"));
     })
+    ok(app);
   });
 }
 
