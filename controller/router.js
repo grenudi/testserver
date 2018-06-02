@@ -1,15 +1,26 @@
 const Path = require("path");
 const Express = require("express");
 
-const set = function(app){
+const chrome = function(app){
   return new Promise((ok,notok)=>{
     app.get("/",(req,res)=>{
-      res.sendFile(Path.join(__dirname, "../browser/static/index.html"));
+      res.sendFile(Path.join(__dirname, "../browser/static/extension/index.html"));
     });
-    app.use(Express.static(Path.join(__dirname, '../browser/static')));
+    app.use(Express.static(Path.join(__dirname, '../browser/static/extension')));
     ok(app);
+  });
+};
+
+const lohbox = function(app){
+  return new Promise((ok, notok)=>{
+    app.get("/",(req,res)=>{
+      res.sendFile(Path.join(__dirname, "../browser/static/lohbox/index.html"));
+    })
   });
 }
 
 
-module.exports = set;
+module.exports = {
+  lohbox,
+  chrome
+};
