@@ -10,7 +10,7 @@ function doTheThing(){
   for(i in pidr){
     try{
       let row = pidr[i].getElementsByTagName("td");
-      if(row[7].innerHTML === "да"){
+      if(row[7].innerHTML.toLowerCase() === "да"){
         let str = row[2].innerHTML + " | пн-пт: "+ replace(row[4].innerHTML) + " сб: "+ replace(row[5].innerHTML) + " вс: "+ replace(row[6].innerHTML)
         result.push(str);
       }
