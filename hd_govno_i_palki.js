@@ -29,7 +29,7 @@ function riddOf7 ( ...list ){
 };
 const inputs = document.querySelectorAll(".ng-pristine.ng-untouched.ng-valid.ng-scope.input-text.ng-empty");
 if(inputs.length > 0){
-    riddOf7(inputs[0],inputs[4],inputs[3]);
+    riddOf7(inputs[0], inputs[1],inputs[4],inputs[3]);
 }else{
     console.error("no inputs on this page");
 }
