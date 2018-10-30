@@ -23,9 +23,6 @@ function riddOf7 ( ...list ){
         document.execCommand("copy");
         sbmt.click();
     }
-    
-    let inputs = document.querySelectorAll("."+"ng-pristine ng-untouched ng-valid ng-scope input-text ng-empty".replace(/ /gm,"."));
-    
     // inputs[4].onpaste = eRidOf7;
     list.forEach(x=>x.onpaste = eRidOf7);
 };
