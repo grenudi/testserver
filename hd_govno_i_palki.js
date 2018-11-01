@@ -43,8 +43,8 @@ function notification(anchor, msg){
 function guidMacSn ()
 {
   const sbmt = document.getElementsByTagName("button")[0];
-  const inputs = document.querySelectorAll(".ng-pristine.ng-untouched.ng-valid.ng-scope.input-text.ng-empty");
-  if(inputs.length <= 0 && !list)
+  const input = document.getElementsByClassName("input-text")[0];
+  if(input.length <= 0 && !list)
     return console.error("NO INPUTS on the page");
 
   const eHandler = function(e){
@@ -84,7 +84,7 @@ function guidMacSn ()
     return str;
   }
 
-  inputs[0].onpaste = eHandler;
+  input.onpaste = eHandler;
 }
 
 switch(location.href){
