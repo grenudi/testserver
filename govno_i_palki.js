@@ -14,7 +14,7 @@ function doTheThing(){
         let str = row[2].innerHTML + " | пн-пт: "+ replace(row[4].innerHTML) + " сб: "+ replace(row[5].innerHTML) + " вс: "+ replace(row[6].innerHTML)
         result.push(str);
       }
-    }catch{}
+    }catch(e){console.warn(e);}
   }
   console.log(result.join("=").replace(/=/gm,"\n\r"));
   printList();
