@@ -86,9 +86,34 @@ function guidMacSn ()
 
   input.onpaste = eHandler;
 }
+function listenToMacPaste (){
+	try{
+	    const tmp_area = document.getElementById("comment_text");
+	    if(!tmp_area){
+	        return console.log("No textarea on the page!");
+	    }
+	    const cutToMatchMac = function(str){
+		    str = str.replace(/\W/gm,"");
+		    if(str.length !== 12)
+		      return undefined;
+		    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x+"-" : x).join("");
+		    return str;
+	  	}
+	    const ePaste = function (e){
+	    	let input = (e.clipboardData || window.clipboardData).getData('text');
+	    	e.clipboardData.setData = window.clipboardData = cutToMatchMac(input) + "" + "HOLY SHIT";/*determinVendor(input);*/
+	    	alert("HOLY SHIT");
+	    }
+	    tmp_area.onpaste = ePaste;
+	}catch(e){
+		alert(e);
+	}
+}
+
+
 
 switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
-  default: addbr(); break;
+  default: addbr(); listenToMacPaste(); break;
 }
