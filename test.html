@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>testo</title>
+  <script src="http://localhost:8081/static/jquery"></script>
+  <style>
+    .super-selector:hover{
+      background-color: #c6fdfd;
+    }
+    .super-selector>.super-selector:hover{
+      background-color: #98fdfd;
+    }
+    .super-selector>.super-selector>.super-selector:hover{
+      background-color: #73fafa;
+    }
+    .super-selector>.super-selector>.super-selector>.super-selector:hover{
+      background-color: #3bffff;
+    }
+    .super-selector>.super-selector>.super-selector>.super-selector>.super-selector:hover{
+      background-color: #1ffdd8;
+    }
+    .super-selector>.super-selector>.super-selector>.super-selector>.super-selector>.super-selector:hover{
+      background-color: #20fdb4;
+    }
+    .super-selector>.super-selector>.super-selector>.super-selector>.super-selector>.super-selector>.super-selector:hover{
+      background-color: #39fd8b;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <span id="first fuck this id">
+      <h1>Fuck you</h1>
+      <div class="test">
+        <div id="one">
+            <textarea name="" id="one" cols="30" rows="10"></textarea>
+        </div>
+      </div>
+    </span>
+  </div>
+  <div>
+    <span>
+      <h1>Fuck you twice</h1>
+      <div class="under-fuck-you test1 test2 and fuck you">
+        <div>
+            <textarea name="" id="two" cols="50" rows="10" value="something special"></textarea>
+        </div>
+      </div>
+    </span>
+  </div>
+  <script>
+    $("#two").val("auto injected into all text areas");
+    $("*").addClass("super-selector");
+  </script>
+</body>
+</html>
