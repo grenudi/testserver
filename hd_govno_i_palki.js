@@ -25701,3 +25701,4 @@ const macCollection = {
 "20C047" : "Verizon ",
 "1878D4" : "Verizon "
 };
+// parse from iEEE document.getElementsByTagName("pre")[0].innerHTML = "{\n" + raw.replace(/(\w{2}-\w{2}-\w{2})(?:\W)*(?:\w)*\)(?:\W)*(.+)$/gm, (__ , _1,_2) => { large+= `"${_1.replace(/-/g,"")}" : "${_2.replace(/(`|"|')/gm, "\$1")}",\n`; }).slice(0,-2); + "}";
