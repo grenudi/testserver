@@ -18,7 +18,7 @@ Aging time is 300 sec
 
   Vlan        Mac Address       Port     Type    
 -------- --------------------- ------ ---------- 
-  301      7c:b2:1b:03:02:c2    e24    dynamic   
+  301      7c:b2:1b:03:02:c2    e24    dynamic    *\d+ *([.,\w,\d,:,-]+)(?:.+$)
   301      e8:94:f6:8d:07:4d    e24    dynamic   
 
 alcatel-172.19.68.115# 
@@ -38,7 +38,7 @@ orl-agg1-acc2-3(cfg)#  show mac dyn port 24
 
   MAC-Address  Vlan-Id   Port    Per Stc ToP ToS Sav SrF DsF Frm      Time
 -------------------------------------------------------------------------------
-386b.bbf4.bf3e   302   port-24    0   0   0   0  -    0   0   0    01:06:21:25
+386b.bbf4.bf3e   302   port-24    0   0   0   0  -    0   0   0    01:06:21:25 ^([\.,\w,\d,:,-]+).+$
 000e.8f17.d9f3   302   port-24    0   0   0   0  -    0   0   0    01:06:21:27
 orl-agg1-acc2-3(cfg)#
 
