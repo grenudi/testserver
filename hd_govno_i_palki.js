@@ -86,6 +86,7 @@ function guidMacSn ()
 
   input.onpaste = eHandler;
 }
+
 function listenToMacPaste (){
 	try{
 	    const tmp_area = document.getElementById("comment_text");
@@ -100,9 +101,14 @@ function listenToMacPaste (){
 		    return str;
 	  	}
 	    const ePaste = function (e){
+	    	e.preventDefault();
 	    	let input = (e.clipboardData || window.clipboardData).getData('text');
-	    	e.clipboardData.setData = window.clipboardData = cutToMatchMac(input) + "" + "HOLY SHIT";/*determinVendor(input);*/
-	    	alert("HOLY SHIT");
+	    	clipboardData = event.clipboardData || window.clipboardData || event.originalEvent.clipboardData;
+	    	clipboardData.setData('text/plain', "HOLY SHIT");/*determinVendor(input);*/
+	   // 	this.dispatchEvent(e.originalEvent)
+	   // 	alert("HOLY SHIT");
+	        document.execCommand('insertText', false, "holy shit shit shit");
+	    	return;
 	    }
 	    tmp_area.onpaste = ePaste;
 	}catch(e){
@@ -110,10 +116,11 @@ function listenToMacPaste (){
 	}
 }
 
-
-
 switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
-  default: addbr(); listenToMacPaste(); break;
+  default: 
+    addbr();
+    // listenToMacPaste();
+    break;
 }
