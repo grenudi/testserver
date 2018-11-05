@@ -40,8 +40,7 @@ function riddOf7 ( ...list ){
 function notification(anchor, msg){
   
 };
-function guidMacSn ()
-{
+function guidMacSn (){
   const sbmt = document.getElementsByTagName("button")[0];
   const input = document.getElementsByClassName("input-text")[0];
   if(input.length <= 0 && !list)
@@ -87,6 +86,8 @@ function guidMacSn ()
   input.onpaste = eHandler;
 }
 
+const Filters = function(){};
+
 function listenToMacPaste (){
 	try{
 	    const tmp_area = document.getElementById("comment_text");
@@ -94,9 +95,13 @@ function listenToMacPaste (){
 	        return console.log("No textarea on the page!");
 	    }
 	    const cutToMatchMac = function(str){
-		    str = str.replace(/\W/gm,"");
-		    if(str.length !== 12)
+	    	if(str.replace(/[а-я, А-Я]/gm,"").length !== str.length){
+	    		return undefined;
+	    	}
+		    str = str.replace(/[\W, ]/gm,"");
+		    if(str.length !== 12){
 		      return undefined;
+		    }
 		    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x.toUpperCase()+"-" : x.toUpperCase()).join("");
 		    return str;
 	  	}
@@ -121,6 +126,10 @@ function listenToMacPaste (){
 	}
 }
 
+function listenToMacLogPaste (){
+
+}
+
 switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
@@ -130,7 +139,10 @@ switch(location.href){
     break;
 }
 
-// this.dispatchEvent(event.originalEvent)
+
+
+// parse from iEEE document.getElementsByTagName("pre")[0].innerHTML = "{\n" + raw.replace(/(\w{2}-\w{2}-\w{2})(?:\W)*(?:\w)*\)(?:\W)*(.+)$/gm, (__ , _1,_2) => { large+= `"${_1.replace(/-/g,"")}" : "${_2.replace(/(`|"|')/gm, "\$1")}",\n`; }).slice(0,-2); + "}";
+
 const macCollection = {
 "E043DB" : "Shenzhen ViewAt Technology Co.,Ltd. ",
 "2405F5" : "Integrated Device Technology (Malaysia) Sdn. Bhd.",
@@ -25701,4 +25713,3 @@ const macCollection = {
 "20C047" : "Verizon ",
 "1878D4" : "Verizon "
 };
-// parse from iEEE document.getElementsByTagName("pre")[0].innerHTML = "{\n" + raw.replace(/(\w{2}-\w{2}-\w{2})(?:\W)*(?:\w)*\)(?:\W)*(.+)$/gm, (__ , _1,_2) => { large+= `"${_1.replace(/-/g,"")}" : "${_2.replace(/(`|"|')/gm, "\$1")}",\n`; }).slice(0,-2); + "}";
