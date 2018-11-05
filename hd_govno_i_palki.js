@@ -97,12 +97,12 @@ function listenToMacPaste (){
 		    str = str.replace(/\W/gm,"");
 		    if(str.length !== 12)
 		      return undefined;
-		    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x+"-" : x).join("");
+		    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x.toUpperCase()+"-" : x.toUpperCase()).join("");
 		    return str;
 	  	}
 	  	const determineMacVendor = function(mac){
 	  		mac = mac.replace(/\W/gm, "").slice(0,6);
-	  		return macCollection["_"+mac];
+	  		return macCollection["_"+mac.toUpperCase()];
 	  	}
 	    const eMacPaste = function (e){
 	    	let input = (e.clipboardData || window.clipboardData).getData('text');
