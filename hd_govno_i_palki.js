@@ -86,50 +86,110 @@ function guidMacSn (){
   input.onpaste = eHandler;
 }
 
-const TEST = function(){
-  let state = "";
+
+
+// let pidr = new Filtor();
+// pidr.add("one",(input)=>{if(input === "one") return "this is one";})
+// pidr.add("two",(input)=>{if(input === "two") return "this is two";})
+// pidr.add("three",(input)=>{if(input === "three") return "this is three";})
+// pidr.add("adeptToOne",(input)=>{return "one";})
+
+// console.log("TEST1: " + pidr.and("one").one().two().three().result());//TEST1: undefined
+// console.log("TEST2: " + pidr.xor("two").one().two().three().result());//TEST2: this is two
+// console.log("TEST3: " + pidr.and("motherfucker").three().adeptToOne().one().result());//TEST3: this is one
+// console.log("TEST4: " + pidr.and("one").one().result());//TEST4: this is one
+
+const Filtors = function(){
+  let state , start = undefined;
   let xor = false;
-  let start = ""
-  this.add = function(name , filterFunction , cb){
-    this[name] = function(){
+
+  this.printf = function(str, ...data){
+    return str.replace(/(\$\d+)/gm, function(_, _1){
+      _1 = _1.replace(/\$/gm,"");
+      console.log(typeof(data[_1-1]));
+      return typeof(data[_1-1]) === "function" ? data[_1-1]() : data[_1-1];
+    })
+  }
+  this.add = function(name , filterFunction){
+    this[name] = function(input, cb){
       try{
-        let tmp = filterFunction(state);
-        state = xor ? (tmp ? tmp : state) : tmp;
+        let tmp = filterFunction(xor ? start : state);
+        if(input && start == undefined){
+          return filterFunction(input);
+        }else if(input && start){
+          tmp = this.printf(input,tmp);
+        }
+        state = tmp;
         if(cb)cb(state);
         return this;
       }catch(err){
         (alert||console.warn)("ERROR in xor filter: "+name+"\n"+err);
       }
     }
+    return this;
   }
   this.result = function(){
     xor = false;
     let tmp = state;
-    state = start = undefined;
-    return tmp;
+    state = undefined;
+    return state;
   }
   this.xor = function(input){
     xor = true;
-    state = input || state;
+    state = start =input || state;
     return this;
   };
   this.and = function(input){
     xor = false;
-    state = input || state;    
+    state = start =input || state;    
     return this;
   }
 };
+const consolas = new Filtors();
 
-let pidr = new TEST();
-pidr.add("one",(input)=>{if(input === "one") return "this is one";})
-pidr.add("two",(input)=>{if(input === "two") return "this is two";})
-pidr.add("three",(input)=>{if(input === "three") return "this is three";})
-pidr.add("adeptToOne",(input)=>{return "one";})
+consolas
+        .add("cleanMac", (input)=>{
+          input = input.replace(/[\.,\-,:, ]/gm, "");
+          if(input.length !== 12 || input.replace(/([a-f,A-F,0-9])/g,"").length !== 0)
+            return undefined;
+          return input;
+        })
+        .add("dlinkMac", (input)=>{
+          return input.split("").map((x,i)=> ((i+1)%2 === 0 && (i+1)!== 12 )? x.toUpperCase()+"-" : x.toUpperCase() ).join("");
+        })
+        .add("addMacVendor", (input)=>{
+          return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
+        });
 
-console.log("TEST1: " + pidr.and("one").one().two().three().result());
-console.log("TEST2: " + pidr.xor("two").one().two().three().result());
-console.log("TEST3: " + pidr.and("motherfucker").three().adeptToOne().one().result());
-console.log("TEST4: " + pidr.and("one").one().result());
+console.log("TEST1: " + consolas.and("88:ac:bc:dc:01:05").cleanMac().result());
+
+const modifyEve = function(el){
+  this.paste = function(handler){//funcion takes input string and retruns either undef (to don't change input or a new value to be pasted)
+    try{
+      if(!el){
+        return console.warn("No textarea on the page!");
+      }
+      el.onpaste = (e)=>{
+        let input = (e.clipboardData || window.clipboardData).getData('text');
+        let result = handler(input);
+        if(result){
+          e.preventDefault();
+          document.execCommand('insertText', false, result);
+        }
+      }
+      return this;
+    }catch(err){
+      (alert || console.error)("ERROR in ListenTo.paste:\n"+err);
+    }
+  }
+}
+
+const tarea = new modifyEve(document.getElementById("two"));
+
+tarea.paste((input)=>{
+    return consolas.and("input").cleanMac().dlinkMac().addMacVendor().result();
+  })
+
 
 function listenToMacPaste (el){
 	try{
