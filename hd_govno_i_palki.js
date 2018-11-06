@@ -91,14 +91,10 @@ const TEST = function(){
   let xor = false;
   let start = ""
   this.add = function(name , filterFunction , cb){
-    this[name] = function(input = state){
+    this[name] = function(){
       try{
-        let tmp = filterFunction(input);
-        state = xor ? (tmp ? state + tmp : state) : tmp;// + is for debuging purpose
-        if(xor){
-          start = input;
-           
-        }
+        let tmp = filterFunction(state);
+        state = xor ? (tmp ? tmp : state) : tmp;
         if(cb)cb(state);
         return this;
       }catch(err){
@@ -113,14 +109,15 @@ const TEST = function(){
     return tmp;
   }
   this.xor = function(input){
-    state = undefined;
-    if(input){
-      //eval all
-    }else{
-      xor = true;
-    }
+    xor = true;
+    state = input || state;
     return this;
   };
+  this.and = function(input){
+    xor = false;
+    state = input || state;    
+    return this;
+  }
 };
 
 let pidr = new TEST();
@@ -129,9 +126,10 @@ pidr.add("two",(input)=>{if(input === "two") return "this is two";})
 pidr.add("three",(input)=>{if(input === "three") return "this is three";})
 pidr.add("adeptToOne",(input)=>{return "one";})
 
-console.log("TEST1: " + pidr.one("one").two().three().result());
-console.log("TEST2: " + pidr.xor().one("two").two().three().result());
-console.log("TEST3: " + pidr.three("motherfucker").adeptToOne().one().result());
+console.log("TEST1: " + pidr.and("one").one().two().three().result());
+console.log("TEST2: " + pidr.xor("two").one().two().three().result());
+console.log("TEST3: " + pidr.and("motherfucker").three().adeptToOne().one().result());
+console.log("TEST4: " + pidr.and("one").one().result());
 
 function listenToMacPaste (el){
 	try{
