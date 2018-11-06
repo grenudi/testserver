@@ -1,6 +1,6 @@
 function addbr (){
-    const tmp_area = document.getElementById("submit_ticket_form");
-    if(!tmp_area){
+    const el = document.getElementById("submit_ticket_form");
+    if(!el){
         return console.log("No textarea on the page!");
     }
     let bttn = document.getElementById("submit_ticket_form")
@@ -86,12 +86,56 @@ function guidMacSn (){
   input.onpaste = eHandler;
 }
 
-const Filters = function(){};
+const TEST = function(){
+  let state = "";
+  let xor = false;
+  let start = ""
+  this.add = function(name , filterFunction , cb){
+    this[name] = function(input = state){
+      try{
+        let tmp = filterFunction(input);
+        state = xor ? (tmp ? state + tmp : state) : tmp;// + is for debuging purpose
+        if(xor){
+          start = input;
+           
+        }
+        if(cb)cb(state);
+        return this;
+      }catch(err){
+        (alert||console.warn)("ERROR in xor filter: "+name+"\n"+err);
+      }
+    }
+  }
+  this.result = function(){
+    xor = false;
+    let tmp = state;
+    state = start = undefined;
+    return tmp;
+  }
+  this.xor = function(input){
+    state = undefined;
+    if(input){
+      //eval all
+    }else{
+      xor = true;
+    }
+    return this;
+  };
+};
 
-function listenToMacPaste (){
+let pidr = new TEST();
+pidr.add("one",(input)=>{if(input === "one") return "this is one";})
+pidr.add("two",(input)=>{if(input === "two") return "this is two";})
+pidr.add("three",(input)=>{if(input === "three") return "this is three";})
+pidr.add("adeptToOne",(input)=>{return "one";})
+
+console.log("TEST1: " + pidr.one("one").two().three().result());
+console.log("TEST2: " + pidr.xor().one("two").two().three().result());
+console.log("TEST3: " + pidr.three("motherfucker").adeptToOne().one().result());
+
+function listenToMacPaste (el){
 	try{
-	    const tmp_area = document.getElementById("comment_text");
-	    if(!tmp_area){
+	    if(!el){
 	        return console.log("No textarea on the page!");
 	    }
 	    const cutToMatchMac = function(str){
@@ -120,7 +164,7 @@ function listenToMacPaste (){
 	        document.execCommand('insertText', false, toPaste);
 	    	return;
 	    }
-	    tmp_area.onpaste = eMacPaste;
+	    el.onpaste = eMacPaste;
 	}catch(e){
 		alert(e);
 	}
@@ -135,7 +179,7 @@ switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
   default: 
     addbr();
-    listenToMacPaste();
+    listenToMacPaste(document.getElementById("two"));
     break;
 }
 
