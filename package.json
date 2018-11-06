@@ -1,15 +1,27 @@
 {
   "name": "testserver",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./server.js"
+    "test": "jasmine",
+    "dev": "nodemon ./server.js",
+    "start": "node server.js"
   },
   "author": "grenudi",
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grenudi/testserver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grenudi/testserver/issues"
+  },
+  "homepage": "https://github.com/grenudi/testserver#readme",
+  "description": "",
+  "devDependencies": {
+    "jasmine": "^3.3.0"
   }
 }
