@@ -251,7 +251,7 @@ switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
   default: 
     addbr();
-    listenToMacPaste(document.getElementById("two"));
+    listenToMacPaste(document.getElementById("comment_text"));
     break;
 }
 }catch(err){
