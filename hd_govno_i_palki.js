@@ -1,3 +1,4 @@
+
 function addbr (){
     const el = document.getElementById("submit_ticket_form");
     if(!el){
@@ -100,51 +101,63 @@ function guidMacSn (){
 // console.log("TEST4: " + pidr.and("one").one().result());//TEST4: this is one
 
 const Filtors = function(){
-  let state , start = undefined;
+  let state , nextState , start = undefined;
+  let states = [];
   let xor = false;
 
-  this.printf = function(str, ...data){
-    return str.replace(/(\$\d+)/gm, function(_, _1){
-      _1 = _1.replace(/\$/gm,"");
-      console.log(typeof(data[_1-1]));
-      return typeof(data[_1-1]) === "function" ? data[_1-1]() : data[_1-1];
+  this.printf = function(str, data=[]){
+    return str.replace(/\$(\d+|c|s)(\d+)*/gm, function(_, _1, _2){
+      if(_2)
+        return states[_2-1] || "";
+      switch(_1){
+        case "s" : return state || "";
+        case "c" : return nextState || "";
+        case /s\d+/ : return "random";
+        default : return typeof(data[_1-1]) === "function" ? data[_1-1]() || "" : data[_1-1]  || "";
+      }
     })
   }
   this.add = function(name , filterFunction){
-    this[name] = function(input, cb){
+    this[name] = function(input, ...data){
       try{
         let tmp = filterFunction(xor ? start : state);
-        if(input && start == undefined){
+        nextState = xor? tmp || state : tmp;
+        if(input && !start){
           return filterFunction(input);
-        }else if(input && start){
-          tmp = this.printf(input,tmp);
         }
-        state = tmp;
-        if(cb)cb(state);
+        state = this.printf(input || "$c", data);//$c - nextState
         return this;
       }catch(err){
-        (alert||console.warn)("ERROR in xor filter: "+name+"\n"+err);
+        console.warn("ERROR in xor filter: "+name+"\n"+err);
       }
     }
     return this;
   }
-  this.result = function(){
-    xor = false;
-    let tmp = state;
-    state = undefined;
+  this.store = function(){
+    states.push(state);
+    return this;
+  }
+  this.get = function(){
     return state;
+  }
+  this.result = function(){
+    let tmp = state;
+    start = state = nextState = xor = undefined;
+    states = [];
+    return tmp === ""? undefined : tmp;
   }
   this.xor = function(input){
     xor = true;
-    state = start =input || state;
+    state = start = input || state;
     return this;
   };
   this.and = function(input){
     xor = false;
-    state = start =input || state;    
+    state = start = input || state;    
     return this;
   }
 };
+
 const consolas = new Filtors();
 
 consolas
@@ -161,7 +174,7 @@ consolas
           return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
         });
 
-console.log("TEST1: " + consolas.and("88:ac:bc:dc:01:05").cleanMac().result());
+// console.log("TEST1: " + consolas.and("88:ac:bc:dc:01:05").cleanMac().result());
 
 const modifyEve = function(el){
   this.paste = function(handler){//funcion takes input string and retruns either undef (to don't change input or a new value to be pasted)
@@ -184,11 +197,11 @@ const modifyEve = function(el){
   }
 }
 
-const tarea = new modifyEve(document.getElementById("two"));
+// const tarea = new modifyEve(document.getElementById("two"));
 
-tarea.paste((input)=>{
-    return consolas.and("input").cleanMac().dlinkMac().addMacVendor().result();
-  })
+// tarea.paste((input)=>{
+//     return consolas.and("input").cleanMac().dlinkMac().addMacVendor().result();
+//   })
 
 
 function listenToMacPaste (el){
@@ -232,6 +245,7 @@ function listenToMacLogPaste (){
 
 }
 
+try{
 switch(location.href){
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
   case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
@@ -240,8 +254,19 @@ switch(location.href){
     listenToMacPaste(document.getElementById("two"));
     break;
 }
+}catch(err){
+  console.warn("you are running tests(perhaps) DONT pay attention then\n",err);
+}
 
-
+try{
+  if(module){
+    module.exports = {
+      Filtors
+    }
+  }
+}catch(err){
+  console.warn("you are not in test environment(perhaps) DONT pay attention then\n",err);
+}
 
 // parse from iEEE document.getElementsByTagName("pre")[0].innerHTML = "{\n" + raw.replace(/(\w{2}-\w{2}-\w{2})(?:\W)*(?:\w)*\)(?:\W)*(.+)$/gm, (__ , _1,_2) => { large+= `"${_1.replace(/-/g,"")}" : "${_2.replace(/(`|"|')/gm, "\$1")}",\n`; }).slice(0,-2); + "}";
 
