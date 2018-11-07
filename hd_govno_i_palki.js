@@ -105,7 +105,7 @@ const Filtors = function(){
   let states = [];
   let xor = false;
 
-  this.printf = function(str, data=[]){
+  this.printf = function(str, ...data){
     return str.replace(/\$(\d+|c|s)(\d+)*/gm, function(_, _1, _2){
       if(_2)
         return states[_2-1] || "";
@@ -125,7 +125,7 @@ const Filtors = function(){
         if(input && !start){
           return filterFunction(input);
         }
-        state = this.printf(input || "$c", data);//$c - nextState
+        state = this.printf(input || "$c", ...data);//$c - nextState
         return this;
       }catch(err){
         console.warn("ERROR in xor filter: "+name+"\n"+err);

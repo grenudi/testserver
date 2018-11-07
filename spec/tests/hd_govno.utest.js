@@ -90,5 +90,9 @@ describe("Filtors should:",()=>{
                             .result())
                             .toBe("testing filter ONE, with given one , expecting two , and add list of: one , two , three");
         })
+        it("should be able to concat as defined in a static function itself param", ()=>{
+            expect(  filtors.printf("testing filter ONE, with given , expecting , and add list of: $1 , $2 , $3", "one" , "two" , "three")
+                ).toBe("testing filter ONE, with given , expecting , and add list of: one , two , three");
+        })
     })
 })
