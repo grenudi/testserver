@@ -247,7 +247,6 @@ try{
     case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
     default: 
       addbr();
-      listenToMacPaste(document.getElementById("comment_text"));
       evef.filter((input)=>{
               return consolas.and(input).cleanMac().dlinkMac().addMacVendor().result();
             })
