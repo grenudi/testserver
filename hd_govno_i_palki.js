@@ -88,18 +88,6 @@ function guidMacSn (){
 }
 
 
-
-// let pidr = new Filtor();
-// pidr.add("one",(input)=>{if(input === "one") return "this is one";})
-// pidr.add("two",(input)=>{if(input === "two") return "this is two";})
-// pidr.add("three",(input)=>{if(input === "three") return "this is three";})
-// pidr.add("adeptToOne",(input)=>{return "one";})
-
-// console.log("TEST1: " + pidr.and("one").one().two().three().result());//TEST1: undefined
-// console.log("TEST2: " + pidr.xor("two").one().two().three().result());//TEST2: this is two
-// console.log("TEST3: " + pidr.and("motherfucker").three().adeptToOne().one().result());//TEST3: this is one
-// console.log("TEST4: " + pidr.and("one").one().result());//TEST4: this is one
-
 const Filtors = function(){
   let state , nextState , start = undefined;
   let states = [];
@@ -120,6 +108,7 @@ const Filtors = function(){
   this.add = function(name , filterFunction){
     this[name] = function(input, ...data){
       try{
+        if(!xor && !state) return this;
         let tmp = filterFunction(xor ? start : state);
         nextState = xor? tmp || state : tmp;
         if(input && !start){
@@ -128,7 +117,7 @@ const Filtors = function(){
         state = this.printf(input || "$c", ...data);//$c - nextState
         return this;
       }catch(err){
-        console.warn("ERROR in xor filter: "+name+"\n"+err);
+        console.error("ERROR in xor filter: "+name+"\n"+err);
       }
     }
     return this;
@@ -157,9 +146,38 @@ const Filtors = function(){
     return this;
   }
 };
+const EventMod = function(){
+  let filter;
+  this.filter = function(handler){
+    if(typeof(handler) !== "function") throw Error("filter have to be a function! Not some: "+typeof(handler));
+    filter = handler;
+    return this;
+  }
+  this.addEvent = function(name, handler){
+    try{
+    if(this[name]) 
+      throw Error("This name is borrowed: "+name);
+    if(typeof(document[name]) !== "object") 
+      throw Error("There is no such event as: "+name);
+
+    this[name] = function(element){
+      element[name] = function(e){
+        let get = handler.get(e);
+        if(get){
+          handler.set(e, filter(get));
+        }
+      }
+    }
+    }catch(err){
+      console.error("running a test? don't pay attention then.",err);
+    }
+    return this;
+  }
+}
+
+
 
 const consolas = new Filtors();
-
 consolas
         .add("cleanMac", (input)=>{
           input = input.replace(/[\.,\-,:, ]/gm, "");
@@ -174,35 +192,17 @@ consolas
           return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
         });
 
-// console.log("TEST1: " + consolas.and("88:ac:bc:dc:01:05").cleanMac().result());
-
-const modifyEve = function(el){
-  this.paste = function(handler){//funcion takes input string and retruns either undef (to don't change input or a new value to be pasted)
-    try{
-      if(!el){
-        return console.warn("No textarea on the page!");
-      }
-      el.onpaste = (e)=>{
-        let input = (e.clipboardData || window.clipboardData).getData('text');
-        let result = handler(input);
-        if(result){
-          e.preventDefault();
-          document.execCommand('insertText', false, result);
-        }
-      }
-      return this;
-    }catch(err){
-      (alert || console.error)("ERROR in ListenTo.paste:\n"+err);
+const evef = new EventMod();
+evef.addEvent("onpaste",
+  {
+    get : (e) => (e.clipboardData || window.clipboardData).getData('text'),
+    set : (e, result) => {
+      if(!result) return undefined;
+      e.preventDefault();
+	    document.execCommand('insertText', false, result);
     }
   }
-}
-
-// const tarea = new modifyEve(document.getElementById("two"));
-
-// tarea.paste((input)=>{
-//     return consolas.and("input").cleanMac().dlinkMac().addMacVendor().result();
-//   })
-
+);
 
 function listenToMacPaste (el){
 	try{
@@ -241,18 +241,18 @@ function listenToMacPaste (el){
 	}
 }
 
-function listenToMacLogPaste (){
-
-}
-
 try{
-switch(location.href){
-  case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
-  case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
-  default: 
-    addbr();
-    listenToMacPaste(document.getElementById("comment_text"));
-    break;
+  switch(location.href){
+    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
+    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
+    default: 
+      addbr();
+      listenToMacPaste(document.getElementById("comment_text"));
+      evef.filter((input)=>{
+              return consolas.and(input).cleanMac().dlinkMac().addMacVendor().result();
+            })
+            .onpaste(document.getElementById("two") || document.getElementById("comment_text"));
+      break;
 }
 }catch(err){
   console.warn("you are running tests(perhaps) DONT pay attention then\n",err);
@@ -261,7 +261,8 @@ switch(location.href){
 try{
   if(module){
     module.exports = {
-      Filtors
+      Filtors,
+      macCollection
     }
   }
 }catch(err){

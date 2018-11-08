@@ -1,6 +1,7 @@
 describe("Filtors should:",()=>{
     const Filtors = require("../../hd_govno_i_palki.js").Filtors;
     const filtors = new Filtors();
+    // const macCollection = require("../../hd_govno_i_palki.js").macCollection;
 
     filtors.add("one", (input)=>{
                 if(input === "one"){            
@@ -25,6 +26,24 @@ describe("Filtors should:",()=>{
     })
     it("have printf", ()=>{
         expect(filtors.printf).not.toBe(undefined);
+    })
+    describe("be robust", ()=>{
+        filtors
+                .add("cleanMac", (input)=>{
+                    input = input.replace(/[\.,\-,:, ]/gm, "");
+                    if(input.length !== 12 || input.replace(/([a-f,A-F,0-9])/g,"").length !== 0)
+                    return undefined;
+                    return input;
+                })
+                .add("dlinkMac", (input)=>{
+                    return input.split("").map((x,i)=> ((i+1)%2 === 0 && (i+1)!== 12 )? x.toUpperCase()+"-" : x.toUpperCase() ).join("");
+                })
+                .add("addMacVendor", (input)=>{
+                    return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
+                });
+        it("[result] return undefined when filter is returning it", ()=>{
+            expect(filtors.and("00-50-BA-12-34-ok").cleanMac().dlinkMac().addMacVendor().result()).toBe(undefined);
+        });
     })
     it("filter should clear all states after result() invocation", ()=>{
         filtors.and("one").one();
