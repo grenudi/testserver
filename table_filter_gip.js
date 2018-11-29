@@ -80,3 +80,35 @@ function listenToChange(){
 
 listenToChange();
 
+const ElementsFinder = function(){
+  const monitor = function(getter , timeout = 1000 , tries=999999){
+    return new Promise((ok,notok)=>{
+      let count = 0;
+      let picker = setInterval(()=>{
+        let el = getter();
+        if(el){
+          clearInterval(picker);
+          ok(el);
+        }else if(count >= tries){
+          clearInterval(picker);
+          console.error(new Error("NO such element as you queried: " + JSON.stringify(getter)));
+        }
+      }, timeout);
+    })
+  }
+  
+  this.add = function(name, getter, timeout, tries){
+    if(!name) throw new Error("no name given!");
+    if(typeof(getter) !== "function") throw new Error("your getter isn't a function: " + JSON.stringify(getter));
+    this[name] = function(){
+      return new Promise((ok)=>{
+        monitor(getter, timeout, tries).then(ok);
+      });
+    }
+  }
+}
+const elFinder = new ElementsFinder();
+
+elFinder.add("headRow", ()=> document.getElementsByTagName("thead").getElementsByTagName("tr")[0] , 500, 120);
+
+elFinder.headRow().then((el)=>console.log("yepekae: " + el));
