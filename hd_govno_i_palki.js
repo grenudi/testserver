@@ -1,273 +1,4 @@
 
-function addbr (){
-    const el = document.getElementById("submit_ticket_form");
-    if(!el){
-        return console.log("No textarea on the page!");
-    }
-    let bttn = document.getElementById("submit_ticket_form")
-    let area = document.getElementById("comment_text")
-    let abbr = function(){
-        area.value = area.value.replace(/<br>/gm,"");
-        area.value = area.value.replace(/\n/gm,"<br>\n");
-    }
-    bttn.onmouseover = abbr
-};
-
-function riddOf7 ( ...list ){
-  const inputs = document.querySelectorAll(".ng-pristine.ng-untouched.ng-valid.ng-scope.input-text.ng-empty");
-
-  if(inputs.length <= 0 && !list)
-    return console.error("NO INPUTS on the page");
-
-  list.push(inputs[0]);
-  list.push(inputs[1]);
-  list.push(inputs[3]);
-  list.push(inputs[4]);
-
-  const sbmt = document.getElementsByTagName("button")[0];
-  const eRidOf7 = function(e){
-      e.preventDefault();
-      let input = (e.clipboardData || window.clipboardData).getData('text');
-      //alert(JSON.stringify(input));
-      e.target.value = input.replace(/\D/gm,"").replace(/^(?:7|8)/,"");
-      e.target.select();
-      document.execCommand("copy");
-      sbmt.click();
-  }
-  // inputs[4].onpaste = eRidOf7;
-  list.forEach(x=>x.onpaste = eRidOf7);
-};
-
-function notification(anchor, msg){
-  
-};
-function guidMacSn (){
-  const sbmt = document.getElementsByTagName("button")[0];
-  const input = document.getElementsByClassName("input-text")[0];
-  if(input.length <= 0 && !list)
-    return console.error("NO INPUTS on the page");
-
-  const eHandler = function(e){
-      e.preventDefault();
-      let input = (e.clipboardData || window.clipboardData).getData('text');
-      input = wtfIsThis(input);
-      if(!input){
-        notification(e.target, "Это не МАК, не ГУИД и не Серийный номер! тогда зачем ты мне даешь это ?");
-        return;
-      }
-      alert(JSON.stringify(input));
-      e.target.value = input;
-      e.target.select();
-      document.execCommand("copy");
-      sbmt.click();
-  }
-  const wtfIsThis = function(str){
-    return cutToMatchMac(str) || cutToMatchGuid(str) || cutToMatchSn(str);
-  }
-  const cutToMatchMac = function(str){
-    str = str.replace(/\W/gm,"");
-    if(str.length !== 12)
-      return undefined;
-    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x+"-" : x).join("");
-    return str;
-  }
-  const cutToMatchGuid = function(str){
-    str = str.replace(/\W/gm,"");
-    if(str.length !== 32)
-      return undefined;
-    return str;
-  }
-  const cutToMatchSn = function(str){
-    str = str.replace(/[\W,_]/gm,"");
-    if(str.length !== 16)
-      return undefined;
-    return str;
-  }
-
-  input.onpaste = eHandler;
-}
-
-
-const Filtors = function(){
-  let state , nextState , start = undefined;
-  let states = [];
-  let xor = false;
-
-  this.printf = function(str, ...data){
-    return str.replace(/\$(\d+|c|s)(\d+)*/gm, function(_, _1, _2){
-      if(_2)
-        return states[_2-1] || "";
-      switch(_1){
-        case "s" : return state || "";
-        case "c" : return nextState || "";
-        case /s\d+/ : return "random";
-        default : return typeof(data[_1-1]) === "function" ? data[_1-1]() || "" : data[_1-1]  || "";
-      }
-    })
-  }
-  this.add = function(name , filterFunction){
-    this[name] = function(input, ...data){
-      try{
-        if(!xor && !state) return this;
-        let tmp = filterFunction(xor ? start : state);
-        nextState = xor? tmp || state : tmp;
-        if(input && !start){
-          return filterFunction(input);
-        }
-        state = this.printf(input || "$c", ...data);//$c - nextState
-        return this;
-      }catch(err){
-        console.error("ERROR in xor filter: "+name+"\n"+err);
-      }
-    }
-    return this;
-  }
-  this.store = function(){
-    states.push(state);
-    return this;
-  }
-  this.get = function(){
-    return state;
-  }
-  this.result = function(){
-    let tmp = state;
-    start = state = nextState = xor = undefined;
-    states = [];
-    return tmp === ""? undefined : tmp;
-  }
-  this.xor = function(input){
-    xor = true;
-    state = start = input || state;
-    return this;
-  };
-  this.and = function(input){
-    xor = false;
-    state = start = input || state;    
-    return this;
-  }
-};
-const EventMod = function(){
-  let filter;
-  this.filter = function(handler){
-    if(typeof(handler) !== "function") throw Error("filter have to be a function! Not some: "+typeof(handler));
-    filter = handler;
-    return this;
-  }
-  this.addEvent = function(name, handler){
-    try{
-    if(this[name]) 
-      throw Error("This name is borrowed: "+name);
-    if(typeof(document[name]) !== "object") 
-      throw Error("There is no such event as: "+name);
-
-    this[name] = function(element){
-      element[name] = function(e){
-        let get = handler.get(e);
-        if(get){
-          handler.set(e, filter(get));
-        }
-      }
-    }
-    }catch(err){
-      console.error("running a test? don't pay attention then.",err);
-    }
-    return this;
-  }
-}
-
-
-
-const consolas = new Filtors();
-consolas
-        .add("cleanMac", (input)=>{
-          input = input.replace(/[\.,\-,:, ]/gm, "");
-          if(input.length !== 12 || input.replace(/([a-f,A-F,0-9])/g,"").length !== 0)
-            return undefined;
-          return input;
-        })
-        .add("dlinkMac", (input)=>{
-          return input.split("").map((x,i)=> ((i+1)%2 === 0 && (i+1)!== 12 )? x.toUpperCase()+"-" : x.toUpperCase() ).join("");
-        })
-        .add("addMacVendor", (input)=>{
-          return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
-        });
-
-const evef = new EventMod();
-evef.addEvent("onpaste",
-  {
-    get : (e) => (e.clipboardData || window.clipboardData).getData('text'),
-    set : (e, result) => {
-      if(!result) return undefined;
-      e.preventDefault();
-	    document.execCommand('insertText', false, result);
-    }
-  }
-);
-
-function listenToMacPaste (el){
-	try{
-	    if(!el){
-	        return console.log("No textarea on the page!");
-	    }
-	    const cutToMatchMac = function(str){
-	    	if(str.replace(/[а-я, А-Я]/gm,"").length !== str.length){
-	    		return undefined;
-	    	}
-		    str = str.replace(/[\W, ]/gm,"");
-		    if(str.length !== 12){
-		      return undefined;
-		    }
-		    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x.toUpperCase()+"-" : x.toUpperCase()).join("");
-		    return str;
-	  	}
-	  	const determineMacVendor = function(mac){
-	  		mac = mac.replace(/\W/gm, "").slice(0,6);
-	  		return macCollection[mac.toUpperCase()];
-	  	}
-	    const eMacPaste = function (e){
-	    	let input = (e.clipboardData || window.clipboardData).getData('text');
-	    	const cleanMac = cutToMatchMac(input);
-	    	if(!cleanMac){
-	    		return;
-	    	}
-	    	e.preventDefault();
-	    	let toPaste = cleanMac + " - " + (determineMacVendor(cleanMac) || "Неизв. производитель");
-	        document.execCommand('insertText', false, toPaste);
-	    	return;
-	    }
-	    el.onpaste = eMacPaste;
-	}catch(e){
-		alert(e);
-	}
-}
-
-try{
-  switch(location.href){
-    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
-    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
-    default: 
-      addbr();
-      evef.filter((input)=>{
-              return consolas.and(input).cleanMac().dlinkMac().addMacVendor().result();
-            })
-            .onpaste(document.getElementById("two") || document.getElementById("comment_text"));
-      break;
-}
-}catch(err){
-  console.warn("you are running tests(perhaps) DONT pay attention then\n",err);
-}
-
-try{
-  if(module){
-    module.exports = {
-      Filtors,
-      macCollection
-    }
-  }
-}catch(err){
-  console.warn("you are not in test environment(perhaps) DONT pay attention then\n",err);
-}
-
 // parse from iEEE document.getElementsByTagName("pre")[0].innerHTML = "{\n" + raw.replace(/(\w{2}-\w{2}-\w{2})(?:\W)*(?:\w)*\)(?:\W)*(.+)$/gm, (__ , _1,_2) => { large+= `"${_1.replace(/-/g,"")}" : "${_2.replace(/(`|"|')/gm, "\$1")}",\n`; }).slice(0,-2); + "}";
 
 const macCollection = {
@@ -25840,3 +25571,273 @@ const macCollection = {
 "20C047" : "Verizon ",
 "1878D4" : "Verizon "
 };
+
+
+function addbr (){
+    const el = document.getElementById("submit_ticket_form");
+    if(!el){
+        return console.log("No textarea on the page!");
+    }
+    let bttn = document.getElementById("submit_ticket_form")
+    let area = document.getElementById("comment_text")
+    let abbr = function(){
+        area.value = area.value.replace(/<br>/gm,"");
+        area.value = area.value.replace(/\n/gm,"<br>\n");
+    }
+    bttn.onmouseover = abbr
+};
+
+function riddOf7 ( ...list ){
+  const inputs = document.querySelectorAll(".ng-pristine.ng-untouched.ng-valid.ng-scope.input-text.ng-empty");
+
+  if(inputs.length <= 0 && !list)
+    return console.error("NO INPUTS on the page");
+
+  list.push(inputs[0]);
+  list.push(inputs[1]);
+  list.push(inputs[3]);
+  list.push(inputs[4]);
+
+  const sbmt = document.getElementsByTagName("button")[0];
+  const eRidOf7 = function(e){
+      e.preventDefault();
+      let input = (e.clipboardData || window.clipboardData).getData('text');
+      //alert(JSON.stringify(input));
+      e.target.value = input.replace(/\D/gm,"").replace(/^(?:7|8)/,"");
+      e.target.select();
+      document.execCommand("copy");
+      sbmt.click();
+  }
+  // inputs[4].onpaste = eRidOf7;
+  list.forEach(x=>x.onpaste = eRidOf7);
+};
+
+function notification(anchor, msg){
+  
+};
+function guidMacSn (){
+  const sbmt = document.getElementsByTagName("button")[0];
+  const input = document.getElementsByClassName("input-text")[0];
+  if(input.length <= 0 && !list)
+    return console.error("NO INPUTS on the page");
+
+  const eHandler = function(e){
+      e.preventDefault();
+      let input = (e.clipboardData || window.clipboardData).getData('text');
+      input = wtfIsThis(input);
+      if(!input){
+        notification(e.target, "Это не МАК, не ГУИД и не Серийный номер! тогда зачем ты мне даешь это ?");
+        return;
+      }
+      alert(JSON.stringify(input));
+      e.target.value = input;
+      e.target.select();
+      document.execCommand("copy");
+      sbmt.click();
+  }
+  const wtfIsThis = function(str){
+    return cutToMatchMac(str) || cutToMatchGuid(str) || cutToMatchSn(str);
+  }
+  const cutToMatchMac = function(str){
+    str = str.replace(/\W/gm,"");
+    if(str.length !== 12)
+      return undefined;
+    str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x+"-" : x).join("");
+    return str;
+  }
+  const cutToMatchGuid = function(str){
+    str = str.replace(/\W/gm,"");
+    if(str.length !== 32)
+      return undefined;
+    return str;
+  }
+  const cutToMatchSn = function(str){
+    str = str.replace(/[\W,_]/gm,"");
+    if(str.length !== 16)
+      return undefined;
+    return str;
+  }
+
+  input.onpaste = eHandler;
+}
+
+
+const Filtors = function(){
+  let state , nextState , start = undefined;
+  let states = [];
+  let xor = false;
+
+  this.printf = function(str, ...data){
+    return str.replace(/\$(\d+|c|s)(\d+)*/gm, function(_, _1, _2){
+      if(_2)
+        return states[_2-1] || "";
+      switch(_1){
+        case "s" : return state || "";
+        case "c" : return nextState || "";
+        case /s\d+/ : return "random";
+        default : return typeof(data[_1-1]) === "function" ? data[_1-1]() || "" : data[_1-1]  || "";
+      }
+    })
+  }
+  this.add = function(name , filterFunction){
+    this[name] = function(input, ...data){
+      try{
+        if(!xor && !state) return this;
+        let tmp = filterFunction(xor ? start : state);
+        nextState = xor? tmp || state : tmp;
+        if(input && !start){
+          return filterFunction(input);
+        }
+        state = this.printf(input || "$c", ...data);//$c - nextState
+        return this;
+      }catch(err){
+        console.error("ERROR in xor filter: "+name+"\n"+err);
+      }
+    }
+    return this;
+  }
+  this.store = function(){
+    states.push(state);
+    return this;
+  }
+  this.get = function(){
+    return state;
+  }
+  this.result = function(){
+    let tmp = state;
+    start = state = nextState = xor = undefined;
+    states = [];
+    return tmp === ""? undefined : tmp;
+  }
+  this.xor = function(input){
+    xor = true;
+    state = start = input || state;
+    return this;
+  };
+  this.and = function(input){
+    xor = false;
+    state = start = input || state;    
+    return this;
+  }
+};
+const EventMod = function(){
+  let filter;
+  this.filter = function(handler){
+    if(typeof(handler) !== "function") throw Error("filter have to be a function! Not some: "+typeof(handler));
+    filter = handler;
+    return this;
+  }
+  this.addEvent = function(name, handler){
+    try{
+    if(this[name]) 
+      throw Error("This name is borrowed: "+name);
+    if(typeof(document[name]) !== "object") 
+      throw Error("There is no such event as: "+name);
+
+    this[name] = function(element){
+      element[name] = function(e){
+        let get = handler.get(e);
+        if(get){
+          handler.set(e, filter(get));
+        }
+      }
+    }
+    }catch(err){
+      console.error("running a test? don't pay attention then.",err);
+    }
+    return this;
+  }
+}
+
+
+
+const consolas = new Filtors();
+consolas
+        .add("cleanMac", (input)=>{
+          input = input.replace(/[\.,\-,:, ]/gm, "");
+          if(input.length !== 12 || input.replace(/([a-f,A-F,0-9])/g,"").length !== 0)
+            return undefined;
+          return input;
+        })
+        .add("dlinkMac", (input)=>{
+          return input.split("").map((x,i)=> ((i+1)%2 === 0 && (i+1)!== 12 )? x.toUpperCase()+"-" : x.toUpperCase() ).join("");
+        })
+        .add("addMacVendor", (input)=>{
+          return input + " - " + macCollection[consolas.and(input).cleanMac().result().slice(0,6).toUpperCase()];
+        });
+
+const evef = new EventMod();
+evef.addEvent("onpaste",
+  {
+    get : (e) => (e.clipboardData || window.clipboardData).getData('text'),
+    set : (e, result) => {
+      if(!result) return undefined;
+      e.preventDefault();
+      document.execCommand('insertText', false, result);
+    }
+  }
+);
+
+function listenToMacPaste (el){
+  try{
+      if(!el){
+          return console.log("No textarea on the page!");
+      }
+      const cutToMatchMac = function(str){
+        if(str.replace(/[а-я, А-Я]/gm,"").length !== str.length){
+          return undefined;
+        }
+        str = str.replace(/[\W, ]/gm,"");
+        if(str.length !== 12){
+          return undefined;
+        }
+        str = str.split("").map((x,i)=> (i+1)%2===0 && (i+1)!== 12? x.toUpperCase()+"-" : x.toUpperCase()).join("");
+        return str;
+      }
+      const determineMacVendor = function(mac){
+        mac = mac.replace(/\W/gm, "").slice(0,6);
+        return macCollection[mac.toUpperCase()];
+      }
+      const eMacPaste = function (e){
+        let input = (e.clipboardData || window.clipboardData).getData('text');
+        const cleanMac = cutToMatchMac(input);
+        if(!cleanMac){
+          return;
+        }
+        e.preventDefault();
+        let toPaste = cleanMac + " - " + (determineMacVendor(cleanMac) || "Неизв. производитель");
+          document.execCommand('insertText', false, toPaste);
+        return;
+      }
+      el.onpaste = eMacPaste;
+  }catch(e){
+    alert(e);
+  }
+}
+
+try{
+  switch(location.href){
+    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/queues": riddOf7(); break;
+    case "https://fttb.bee.vimpelcom.ru/ptn/ng_ptn#/search-tv-equipment": guidMacSn(); break;
+    default: 
+      addbr();
+      evef.filter((input)=>{
+              return consolas.and(input).cleanMac().dlinkMac().addMacVendor().result();
+            })
+            .onpaste(document.getElementById("two") || document.getElementById("comment_text"));
+      break;
+}
+}catch(err){
+  console.warn("you are running tests(perhaps) DONT pay attention then\n",err);
+}
+
+try{
+  if(module){
+    module.exports = {
+      Filtors,
+      macCollection
+    }
+  }
+}catch(err){
+  console.warn("you are not in test environment(perhaps) DONT pay attention then\n",err);
+}
